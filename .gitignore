@@ -1,0 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Sublime Text files
+*.sublime-project
+*.sublime-workspace
+
+# related files
+data/
+
+# incomplete files
+pdfmerge.py
+tasks.py
