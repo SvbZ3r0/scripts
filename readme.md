@@ -2,15 +2,15 @@
 
 These scripts were written for personal use. You are free to do with these as you wish.
 
-## cputemp.bat
+### cputemp.bat
 
 Retrieves the temperature of the CPU. Windows only. May not work on all machines.
 
-## cputemp.py
+### cputemp.py
 
 Gets the CPU temperature in a python script. Requires cputemp.bat to work.
 
-## curx.py
+### curx.py
 
 Commandline currency conversion.
 
@@ -21,7 +21,7 @@ curx.py <val> <from> <to>
 
 To currency defaults to INR (₹).
 
-## tasks.py
+### tasks.py
 
 Commandline TODO list manager. Written with the Enigma skin on Rainmeter in mind.
 

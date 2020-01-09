@@ -80,16 +80,16 @@ class ListHandler(object):
 
 	def list_tasks(self):
 		for i, item in enumerate(self.tasks):
-			print('%i %s' % (i+1,item))
+			print(f'{i+1} {item}')
 
 	def update_file(self):
 		with open(todo_file, 'w') as f:
 			for line in self.tasks:
-				f.write('‐ %s\n\n' % line)
+				f.write(f'‐ {line}\n\n')
 			f.write('<donotshow>')
 			f.write(self.noshow)
 
 if __name__ == '__main__':
 	todo = ListHandler()
-	todo.parse(argv)
+	todo.parse(sys.argv)
 	todo.update_file()
