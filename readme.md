@@ -35,3 +35,18 @@ tasks.py prom <num>
 tasks.py demo <num>
 tasks.py pop
 ```
+
+### roll.py
+
+Rolls a n-sided die.
+
+Usage:
+```
+roll.py <n>
+```
+
+Defaults to 6-sided die.
+
+### toss.py
+
+Tosses a coin
