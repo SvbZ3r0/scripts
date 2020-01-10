@@ -21,6 +21,16 @@ curx.py <val> <from> <to>
 
 To currency defaults to INR (₹).
 
+### pdfmerge.py
+
+Launches GUI to merge multiple PDFs into a single document.
+
+Requirements: [`pyPDF2`](https://pypi.org/project/PyPDF2/)
+
+```
+pip install PyPDF2
+```
+
 ### tasks.py
 
 Commandline TODO list manager. Written with the Enigma skin on Rainmeter in mind.
