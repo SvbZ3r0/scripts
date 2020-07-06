@@ -60,3 +60,7 @@ Defaults to 6-sided die.
 ### toss.py
 
 Tosses a coin
+
+### update-pip.bat
+
+Updates all pip packages

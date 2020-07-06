@@ -10,4 +10,11 @@ __pycache__/
 # related files
 data/
 
+# not for Github
+autoclick.*
+egg.*
+get-pip.py
+rs3_*.*
+
 # incomplete files
+curx-tmp.py
