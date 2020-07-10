@@ -8,18 +8,31 @@ Retrieves the temperature of the CPU. Windows only. May not work on all machines
 
 ### cputemp.py
 
-Gets the CPU temperature in a python script. Requires cputemp.bat to work.
+Gets the CPU temperature in a python script. For now, Windows only. May not work on all machines.
 
 ### curx.py
 
 Commandline currency conversion.
 
+Requirements: number_format.py - Optional
+
 Usage:
 ```
-curx.py <val> <from> <to>
+curx.py <val> <from> [to]
 ```
 
 To currency defaults to INR (₹).
+
+### number_format.py
+
+Adds commas(,) to numbers to format them according to Indian or Western format.
+
+Usage:
+```
+number_format.py [-i|-w] <num>
+```
+
+Format defaults to Indian.
 
 ### pdfmerge.py
 
@@ -52,7 +65,7 @@ Rolls a n-sided die.
 
 Usage:
 ```
-roll.py <n>
+roll.py [n]
 ```
 
 Defaults to 6-sided die.
