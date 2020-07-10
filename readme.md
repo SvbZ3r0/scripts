@@ -14,7 +14,8 @@ Gets the CPU temperature in a python script. For now, Windows only. May not work
 
 Commandline currency conversion.
 
-##### Requirements (*Optional*): [`number_format.py`](https://github.com/SvbZ3r0/scripts/blob/master/number_format.py)
+##### Requirements: 
+[`number_format.py`](https://github.com/SvbZ3r0/scripts#number_formatpy) (*Optional*)
 
 ##### Usage:
 ```
@@ -38,7 +39,8 @@ Format defaults to Indian.
 
 Launches GUI to merge multiple PDFs into a single document.
 
-##### Requirements: [`pyPDF2`](https://pypi.org/project/PyPDF2/)
+##### Requirements: 
+[`pyPDF2`](https://pypi.org/project/PyPDF2/)
 
 ```
 pip install PyPDF2
