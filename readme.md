@@ -14,7 +14,7 @@ Gets the CPU temperature in a python script. For now, Windows only. May not work
 
 Commandline currency conversion.
 
-##### Requirements: [`number_format.py`](https://github.com/SvbZ3r0/scripts/blob/master/number_format.py) - *Optional*
+##### Requirements (*Optional*): [`number_format.py`](https://github.com/SvbZ3r0/scripts/blob/master/number_format.py)
 
 ##### Usage:
 ```
@@ -63,7 +63,7 @@ tasks.py pop
 
 Rolls a n-sided die.
 
-###### Usage:
+##### Usage:
 ```
 roll.py [n]
 ```
