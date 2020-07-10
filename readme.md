@@ -14,9 +14,9 @@ Gets the CPU temperature in a python script. For now, Windows only. May not work
 
 Commandline currency conversion.
 
-###### Requirements: number_format.py - Optional
+##### Requirements: [`number_format.py`](https://github.com/SvbZ3r0/scripts/blob/master/number_format.py) - *Optional*
 
-###### Usage:
+##### Usage:
 ```
 curx.py <val> <from> [to]
 ```
@@ -27,7 +27,7 @@ To currency defaults to INR (₹).
 
 Adds commas(,) to numbers to format them according to Indian or Western format.
 
-###### Usage:
+##### Usage:
 ```
 number_format.py [-i|-w] <num>
 ```
@@ -38,7 +38,7 @@ Format defaults to Indian.
 
 Launches GUI to merge multiple PDFs into a single document.
 
-###### Requirements: [`pyPDF2`](https://pypi.org/project/PyPDF2/)
+##### Requirements: [`pyPDF2`](https://pypi.org/project/PyPDF2/)
 
 ```
 pip install PyPDF2
@@ -48,7 +48,7 @@ pip install PyPDF2
 
 Commandline TODO list manager. Written with the Enigma skin on Rainmeter in mind.
 
-###### Usage:
+##### Usage:
 ```
 tasks.py
 tasks.py add <todo>
