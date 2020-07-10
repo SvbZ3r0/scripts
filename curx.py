@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 import sys
 import json
@@ -5,6 +7,12 @@ import argparse
 import datetime
 import requests
 from pathlib import Path
+
+try:
+	from number_format import conv
+except ImportError:
+	def conv(num, fmt):
+		return num
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), 'data', 'curx.conf')) as f:
 	conf = json.load(f)
@@ -134,11 +142,18 @@ def convert(rates, from_curr, to_curr, val):
 		exit(1)
 	if not rate:
 		rate = rates['rates'][to_curr]['rate'] / rates['rates'][from_curr]['rate']
-	return val * rate
+	conv_rate = val * rate
+	conv_rate = f'{conv_rate:.2f}'
+	fmt = 'i' if to_curr == 'INR' else 'w'
+	conv_rate = conv(conv_rate, fmt)
+	if 'symbol' in rates['rates'][to_curr].keys():
+		conv_rate = rates['rates'][to_curr]['symbol'] + ' ' + conv_rate
+	return conv_rate
 
 if __name__ == '__main__':
 	# create 'data' folder if it doesn't already exist
 	Path(os.path.dirname(cache_file)).mkdir(parents=True, exist_ok=True)
 	args = parse_args()
 	converted = convert(get_rates_cache(), *args)
-	print(f'{converted:.2f}')
+	print(converted)
+	# print(f'{converted:.2f}')
