@@ -27,7 +27,7 @@ class ListHandler(object):
 				show, self.noshow = f.read().split('<donotshow>')
 				show = [i for i in show.split('\n') if i]
 			self.tasks = [line.split('‐ ', 1)[1].rstrip() for line in show]
-			# Encoding issue with Rainmeter. Use ‐ not -
+			# Encoding issue with Rainmeter. Use '‐' (\u2010), not '-' (\u002d)
 
 		except IOError:
 			self.tasks = []
