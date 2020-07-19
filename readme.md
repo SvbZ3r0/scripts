@@ -15,7 +15,8 @@ Gets the CPU temperature in a python script. For now, Windows only. May not work
 Commandline currency conversion.
 
 ##### Requirements: 
-['Open Exchange Rate API Key']('https://openexchangerates.org/signup/free')
+[`Open Exchange Rate API Key`](https://openexchangerates.org/signup/free)
+
 [`number_format.py`](https://github.com/SvbZ3r0/scripts#number_formatpy) (*Optional*)
 
 ##### Usage:
