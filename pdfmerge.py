@@ -43,6 +43,12 @@ class Window(Frame):
 		add_folder_button = Button(self, text='Add folder', command=self.add_folder)
 		add_folder_button.place(relx=0.98, rely=0.2, anchor=E, width=85)
 		
+		up_button = Button(self, text=u'\u02c4', command=self.merge_pdf)
+		up_button.place(relx=0.91, rely=0.325, anchor=CENTER, width=30)#, height=85)
+	
+		merge_button = Button(self, text=u'\u02c5', command=self.merge_pdf)
+		merge_button.place(relx=0.91, rely=0.375, anchor=CENTER, width=30)#, height=85)
+	
 		remove_button = Button(self, text='Remove all', command=self.reset_pdf)
 		remove_button.place(relx=0.98, rely=0.5, anchor=E, width=85)
 		
@@ -60,13 +66,13 @@ class Window(Frame):
 			for file in pdf_file:
 				ext = file.split('.')[-1]
 				if (ext.lower() != 'pdf'):
-					error_message='{} is not a PDF.\n'.format(file)
+					error_message=f'{file} is not a PDF.\n'
 					self.errtext.insert(INSERT, error_message)
 					raise ValueError(error_message)
 			# add pdf files
 			for file in pdf_file:
 				self.pdf_name_list.append(file)
-				display = str(self.count)+ '. ' + file.split('/')[-1] + '\n'
+				display = f'{str(self.count)}. {file.split('/')[-1]}\n'
 				self.textbox.insert(INSERT, display)
 				self.count+=1
 		else:
@@ -82,7 +88,7 @@ class Window(Frame):
 		for file in os.listdir(pdf_folder):
 			if file.endswith('.pdf'):
 				self.pdf_name_list.append(os.path.join(pdf_folder, file))
-				display = str(self.count)+ '. ' + file.split('/')[-1] + '\n'
+				display = f'{str(self.count)}. {file.split('/')[-1]}\n'
 				self.textbox.insert(INSERT, display)
 				self.count+=1
 
@@ -104,16 +110,8 @@ class Window(Frame):
 			merger = PdfFileMerger()
 			for filename in self.pdf_name_list:
 				merger.append(open(filename, 'rb'))
-			dt = datetime.datetime.now()
-			strdt = str(dt)
-			date = strdt.split(' ')[0]
-			time = strdt.split(' ')[1]
-			time = time.split(':')
-			timehr = time[0]
-			timemin = time[1]
-			timesec = time[2].split('.')[0]
-			finaldt = date + ' ' + timehr + '-' + timemin + '-' + timesec
-			with open(f'mergedPDF_{finaldt}.pdf' , 'wb') as fout:
+			dt = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+			with open(f'mergedPDF_{dt}.pdf' , 'wb') as fout:
 				merger.write(fout)
 			self.errtext.insert(INSERT, 'Merge Complete!!!')
 	
