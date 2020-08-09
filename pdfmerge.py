@@ -16,7 +16,7 @@ class App(QMainWindow):
 		self.setCentralWidget(self.table_widget)
 
 		self.show()
-		self.statusBar().showMessage('Opening application', 2000)
+		self.statusBar().showMessage('Opening application', 1000)
 
 
 class UIWindow(QWidget):
@@ -30,8 +30,8 @@ class UIWindow(QWidget):
 		self.scrlboxFileList = QScrollArea()
 		self.scrlboxFileList.setWidget(QWidget())
 
-		self.hbox = QHBoxLayout()
-		self.hbox.addWidget(self.scrlboxFileList)
+		hbox = QHBoxLayout()
+		hbox.addWidget(self.scrlboxFileList)
 
 		btnAddFiles = QPushButton('Add file(s)')
 		btnAddFiles.clicked.connect(self.add_files)
@@ -41,6 +41,10 @@ class UIWindow(QWidget):
 		btnMoveUp.clicked.connect(lambda: self.move_pdfs(up=True))
 		btnMoveDown = QPushButton(u'\u02c5')
 		btnMoveDown.clicked.connect(lambda: self.move_pdfs(up=False))
+		btnMoveAllUp = QPushButton(u'\u2b71')
+		btnMoveAllUp.clicked.connect(lambda: self.move_all_pdfs(up=True))
+		btnMoveAllDown = QPushButton(u'\u2b73')
+		btnMoveAllDown.clicked.connect(lambda: self.move_all_pdfs(up=False))
 		btnRemove = QPushButton('Remove')
 		btnRemove.clicked.connect(self.remove_pdfs)
 		btnRemoveAll = QPushButton('Remove all')
@@ -50,6 +54,7 @@ class UIWindow(QWidget):
 		btnExit = QPushButton('Exit')
 		btnExit.clicked.connect(QCoreApplication.instance().quit)
 
+		widgetBtns = QWidget()
 		vboxBtns = QVBoxLayout()
 
 		vboxAddFileBtns = QVBoxLayout()
@@ -57,10 +62,17 @@ class UIWindow(QWidget):
 		vboxAddFileBtns.addWidget(btnAddFolder)
 		vboxBtns.addLayout(vboxAddFileBtns)
 
+		vboxAllMoveBtns = QVBoxLayout()
+		hboxMoveAllBtns = QHBoxLayout()
+		hboxMoveAllBtns.addWidget(btnMoveAllUp)
+		hboxMoveAllBtns.addWidget(btnMoveAllDown)
+		vboxAllMoveBtns.addLayout(hboxMoveAllBtns)
+
 		hboxMoveBtns = QHBoxLayout()
 		hboxMoveBtns.addWidget(btnMoveUp)
 		hboxMoveBtns.addWidget(btnMoveDown)
-		vboxBtns.addLayout(hboxMoveBtns)
+		vboxAllMoveBtns.addLayout(hboxMoveBtns)
+		vboxBtns.addLayout(vboxAllMoveBtns)
 
 		vboxRemoveBtns = QVBoxLayout()
 		vboxRemoveBtns.addWidget(btnRemove)
@@ -70,9 +82,12 @@ class UIWindow(QWidget):
 		vboxBtns.addWidget(btnMerge)
 		vboxBtns.addWidget(btnExit)
 
+		widgetBtns.setLayout(vboxBtns)
+		widgetBtns.setFixedWidth(80)
+
 		vboxMain = QVBoxLayout()
-		vboxMain.addLayout(self.hbox)
-		self.hbox.addLayout(vboxBtns)
+		vboxMain.addLayout(hbox)
+		hbox.addWidget(widgetBtns)
 
 		self.setLayout(vboxMain)
 		self.show()
@@ -81,11 +96,10 @@ class UIWindow(QWidget):
 		self.pdf_file_UI = []
 		vboxFiles = QVBoxLayout()
 		for item in self.pdf_list:
-			print(item)
 			pdf_file = os.path.basename(item['file'])
 			chkbox = QCheckBox(pdf_file)
 			chkbox.setChecked(item['checked'])
-			chkbox.stateChanged.connect(self.updateChecked)
+			chkbox.stateChanged.connect(self.updateCheckedPdfList)
 			self.pdf_file_UI.append(chkbox)
 			vboxFiles.addWidget(chkbox)
 
@@ -95,25 +109,14 @@ class UIWindow(QWidget):
 		self.scrlboxFileList.setWidget(widgetFileList)
 		self.scrlboxFileList.update()
 
-	def updateChecked(self):
+	def updateCheckedPdfList(self):
 		self.pdf_list = []
 		for item in self.pdf_file_UI:
 			self.pdf_list.append({'file':item.text(), 'checked':item.isChecked()})
 
 	@pyqtSlot()
-	def merge(self):
-		self.parent().statusBar().showMessage('Merging')
-
-	@pyqtSlot()
 	def statusMsg(self, msg, t=2000):
 		self.parent().statusBar().showMessage(msg, t)
-
-	@pyqtSlot()
-	def toggleStatusBar(self):
-		if self.parent().statusBar().isHidden():
-			self.parent().statusBar().show()
-		else:
-			self.parent().statusBar().hide()
 
 	def add_files(self):
 		pdf_file = QFileDialog.getOpenFileNames(self, 'Select PDFs', os.getcwd(), 'PDF files (*.pdf)')
@@ -135,13 +138,25 @@ class UIWindow(QWidget):
 		self.updateUI()
 
 	def move_pdfs(self, up):
-		# up = True
 		if not up:
 			self.pdf_list, self.pdf_file_UI = self.pdf_list[::-1], self.pdf_file_UI[::-1]
 		for n, item in enumerate(self.pdf_file_UI):
 			if item.isChecked():
 				if n>0 and not self.pdf_list[n-1]['checked']:
 					self.pdf_list[n], self.pdf_list[n-1] = self.pdf_list[n-1], self.pdf_list[n]
+		if not up:
+			self.pdf_list, self.pdf_file_UI = self.pdf_list[::-1], self.pdf_file_UI[::-1]
+		self.updateUI()
+
+	def move_all_pdfs(self, up):
+		i = 0
+		if not up:
+			self.pdf_list, self.pdf_file_UI = self.pdf_list[::-1], self.pdf_file_UI[::-1]
+		for n, item in enumerate(self.pdf_file_UI):
+			if item.isChecked():
+				self.pdf_list.insert(i, self.pdf_list[n])
+				del(self.pdf_list[n+1])
+				i += 1
 		if not up:
 			self.pdf_list, self.pdf_file_UI = self.pdf_list[::-1], self.pdf_file_UI[::-1]
 		self.updateUI()
@@ -181,7 +196,6 @@ if __name__ == '__main__':
 
 	wind = App()
 	wind.resize(600, 500)
-	wind.move(50,150)
 	wind.show()
 
 	sys.exit(app.exec_())
