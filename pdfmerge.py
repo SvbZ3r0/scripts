@@ -11,7 +11,6 @@ class App(QMainWindow):
 		super().__init__()
 		self.title = 'PDFMerger'
 		self.setWindowTitle(self.title)
-		self.setGeometry(self.left, self.top, self.width, self.height)
 
 		self.table_widget = UIWindow(self)
 		self.setCentralWidget(self.table_widget)
