@@ -1,121 +1,192 @@
-# Original work © 2019 Davidnh8
-# Modified work © 2020 $vBZ3r0
-# from https://github.com/Davidnh8/PDFmerge_windows/blob/master/PDFmerge.py
-
-from PyPDF2 import PdfFileMerger, PdfFileReader
 import os
-from tkinter import *
-from tkinter.ttk import *
-from tkinter import filedialog, scrolledtext
-import datetime
+from datetime import datetime
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyPDF2 import PdfFileMerger, PdfFileReader
 
-class Window(Frame):
-	def __init__(self, master=None):
-		Frame.__init__(self, master)
-		self.master = master
-		self.init_window()
-		self.pdf_name_list=[]
-		
-		# main text box
-		self.textbox = scrolledtext.ScrolledText(self, width=55, height=25)
-		self.textbox.pack(anchor='w')
-		self.textbox.place(x=5, y=25)
-		self.count=1
-		
-		#top textbox
-		# height parameter not available in ttk
-		self.toptext = Label(self, text = 'List of files', width=20, background='light gray') #, height=1)
-		self.toptext.pack(anchor='w')
-		self.toptext.place(x=5, y=5)
-		
-		# error textbox
-		self.errtext = Text(self, width=55, height=2, bg='light gray')
-		self.errtext.pack(anchor='w')
-		self.errtext.place(x=5, y=450)
-		
-	def init_window(self):
-		self.master.title('PDFMerger')
-		self.pack(fill=BOTH, expand=1)
-		
-		add_files_button = Button(self, text='Add file(s)', command=self.add_files)
-		add_files_button.place(relx=0.98, rely=0.1, anchor=E, width=85)
-		
-		add_folder_button = Button(self, text='Add folder', command=self.add_folder)
-		add_folder_button.place(relx=0.98, rely=0.2, anchor=E, width=85)
-		
-		up_button = Button(self, text=u'\u02c4', command=self.merge_pdf)
-		up_button.place(relx=0.91, rely=0.325, anchor=CENTER, width=30)#, height=85)
-	
-		merge_button = Button(self, text=u'\u02c5', command=self.merge_pdf)
-		merge_button.place(relx=0.91, rely=0.375, anchor=CENTER, width=30)#, height=85)
-	
-		remove_button = Button(self, text='Remove all', command=self.reset_pdf)
-		remove_button.place(relx=0.98, rely=0.5, anchor=E, width=85)
-		
-		merge_button = Button(self, text='Merge!', command=self.merge_pdf)
-		merge_button.place(relx=0.98, rely=0.7, anchor=E, width=85)#, height=85)
-	
-		exit_button = Button(self, text='Exit', command=root.destroy)
-		exit_button.place(relx=0.98, rely=0.9, anchor=E, width=85)
-		
-	def add_files(self):
-		self.errtext.delete('1.0', END)
-		pdf_file = filedialog.askopenfilenames(parent=self, initialdir=os.getcwd(), filetypes=[('PDF files', '*.pdf')])
-		if (type(pdf_file)==type([])) + (type(pdf_file)==type((1,))):
-			# error check loop
-			for file in pdf_file:
-				ext = file.split('.')[-1]
-				if (ext.lower() != 'pdf'):
-					error_message=f'{file} is not a PDF.\n'
-					self.errtext.insert(INSERT, error_message)
-					raise ValueError(error_message)
-			# add pdf files
-			for file in pdf_file:
-				self.pdf_name_list.append(file)
-				display = f'{str(self.count)}. {file.split('/')[-1]}\n'
-				self.textbox.insert(INSERT, display)
-				self.count+=1
+
+class App(QMainWindow):
+
+	def __init__(self):
+		super().__init__()
+		self.title = 'PDFMerger'
+		self.left = 200
+		self.top = 70
+		self.width = 200
+		self.height = 100
+		self.setWindowTitle(self.title)
+		self.setGeometry(self.left, self.top, self.width, self.height)
+
+		self.table_widget = UIWindow(self)
+		self.setCentralWidget(self.table_widget)
+
+		self.show()
+		self.statusBar().showMessage('Opening application', 2000)
+
+
+class UIWindow(QWidget):
+	def __init__(self, parent=None):
+		super(QWidget, self).__init__(parent)
+		self.initUI()
+
+
+	def initUI(self):
+		self.pdf_list=[]
+		self.scrlboxFileList = QScrollArea()
+		self.scrlboxFileList.setWidget(QWidget())
+
+		self.hbox = QHBoxLayout()
+		self.hbox.addWidget(self.scrlboxFileList)
+
+		btnAddFiles = QPushButton('Add file(s)')
+		btnAddFiles.clicked.connect(self.add_files)
+		btnAddFolder = QPushButton('Add folder')
+		btnAddFolder.clicked.connect(self.add_folder)
+		btnMoveUp = QPushButton(u'\u02c4')
+		btnMoveUp.clicked.connect(lambda: self.move_pdfs(up=True))
+		btnMoveDown = QPushButton(u'\u02c5')
+		btnMoveDown.clicked.connect(lambda: self.move_pdfs(up=False))
+		btnRemove = QPushButton('Remove')
+		btnRemove.clicked.connect(self.remove_pdfs)
+		btnRemoveAll = QPushButton('Remove all')
+		btnRemoveAll.clicked.connect(self.reset_pdf_list)
+		btnMerge = QPushButton('Merge')
+		btnMerge.clicked.connect(self.merge_pdf)
+		btnExit = QPushButton('Exit')
+		btnExit.clicked.connect(QCoreApplication.instance().quit)
+
+		vboxBtns = QVBoxLayout()
+
+		vboxAddFileBtns = QVBoxLayout()
+		vboxAddFileBtns.addWidget(btnAddFiles)
+		vboxAddFileBtns.addWidget(btnAddFolder)
+		vboxBtns.addLayout(vboxAddFileBtns)
+
+		hboxMoveBtns = QHBoxLayout()
+		hboxMoveBtns.addWidget(btnMoveUp)
+		hboxMoveBtns.addWidget(btnMoveDown)
+		vboxBtns.addLayout(hboxMoveBtns)
+
+		vboxRemoveBtns = QVBoxLayout()
+		vboxRemoveBtns.addWidget(btnRemove)
+		vboxRemoveBtns.addWidget(btnRemoveAll)
+		vboxBtns.addLayout(vboxRemoveBtns)
+
+		vboxBtns.addWidget(btnMerge)
+		vboxBtns.addWidget(btnExit)
+
+		vboxMain = QVBoxLayout()
+		vboxMain.addLayout(self.hbox)
+		self.hbox.addLayout(vboxBtns)
+
+		self.setLayout(vboxMain)
+		self.show()
+
+	def updateUI(self):
+		self.pdf_file_UI = []
+		vboxFiles = QVBoxLayout()
+		for item in self.pdf_list:
+			print(item)
+			pdf_file = os.path.basename(item['file'])
+			chkbox = QCheckBox(pdf_file)
+			chkbox.setChecked(item['checked'])
+			chkbox.stateChanged.connect(self.updateChecked)
+			self.pdf_file_UI.append(chkbox)
+			vboxFiles.addWidget(chkbox)
+
+		widgetFileList = QWidget()
+		widgetFileList.setLayout(vboxFiles)
+
+		self.scrlboxFileList.setWidget(widgetFileList)
+		self.scrlboxFileList.update()
+
+	def updateChecked(self):
+		self.pdf_list = []
+		for item in self.pdf_file_UI:
+			self.pdf_list.append({'file':item.text(), 'checked':item.isChecked()})
+
+	@pyqtSlot()
+	def merge(self):
+		self.parent().statusBar().showMessage('Merging')
+
+	@pyqtSlot()
+	def statusMsg(self, msg, t=2000):
+		self.parent().statusBar().showMessage(msg, t)
+
+	@pyqtSlot()
+	def toggleStatusBar(self):
+		if self.parent().statusBar().isHidden():
+			self.parent().statusBar().show()
 		else:
-			return
-			# raise TypeError('output of filedialog.askopenfilenames is neither list of tuple. Either nothing was chosen, or unknown error has occured')
+			self.parent().statusBar().hide()
+
+	def add_files(self):
+		pdf_file = QFileDialog.getOpenFileNames(self, 'Select PDFs', os.getcwd(), 'PDF files (*.pdf)')
+		# add pdf files
+		for file in pdf_file[0]:
+			if os.path.splitext(file)[-1] != '.pdf':
+				self.statusMsg('Skipping files that aren\'t PDFs', 1000)
+				continue
+			self.pdf_list.append({'file':file, 'checked':False})
+		self.updateUI()
 	
 	def add_folder(self):
-		self.errtext.delete('1.0', END)
-		pdf_folder = filedialog.askdirectory(parent=self, initialdir=os.getcwd())
+		pdf_folder = QFileDialog.getExistingDirectory(self, 'Select PDFs', os.getcwd())
 		if not os.path.exists(pdf_folder):
 			return
-		# TODO add no files selected message
 		for file in os.listdir(pdf_folder):
-			if file.endswith('.pdf'):
-				self.pdf_name_list.append(os.path.join(pdf_folder, file))
-				display = f'{str(self.count)}. {file.split('/')[-1]}\n'
-				self.textbox.insert(INSERT, display)
-				self.count+=1
+			if os.path.splitext(file)[-1] == '.pdf':
+				self.pdf_list.append({'file':os.path.join(pdf_folder, file), 'checked':False})
+		self.updateUI()
 
-	def reset_pdf(self):
-		self.errtext.delete('1.0', END)
-		self.textbox.delete('1.0', END)
-		self.pdf_name_list=[]
-		self.count=1
+	def move_pdfs(self, up):
+		# up = True
+		if not up:
+			self.pdf_list, self.pdf_file_UI = self.pdf_list[::-1], self.pdf_file_UI[::-1]
+		for n, item in enumerate(self.pdf_file_UI):
+			if item.isChecked():
+				if n>0 and not self.pdf_list[n-1]['checked']:
+					self.pdf_list[n], self.pdf_list[n-1] = self.pdf_list[n-1], self.pdf_list[n]
+		if not up:
+			self.pdf_list, self.pdf_file_UI = self.pdf_list[::-1], self.pdf_file_UI[::-1]
+		self.updateUI()
+
+	def remove_pdfs(self):
+		i = 0
+		for n, item in enumerate(self.pdf_file_UI):
+			if item.isChecked():
+				del(self.pdf_list[n-i])
+				i += 1
+		self.updateUI()
+
+	def reset_pdf_list(self):
+		self.pdf_list=[]
+		self.updateUI()
 	
 	def merge_pdf(self):
-		self.errtext.delete('1.0', END)
-		if len(self.pdf_name_list)==0:
-			self.errtext.insert(INSERT, 'There is nothing to merge!')
-			raise ValueError('There is nothing to merge!')
-		elif len(self.pdf_name_list)==1:
-			self.errtext.insert(INSERT, 'Only single file is present. No need to merge.')
-			raise ValueError('Only single file is present. No need to merge.')
+		if len(self.pdf_list)==0:
+			self.statusMsg('There is nothing to merge!')
+		elif len(self.pdf_list)==1:
+			self.statusMsg('Only single file is present. No need to merge.')
 		else:
+			self.statusMsg('Merging files', 5000)
 			merger = PdfFileMerger()
-			for filename in self.pdf_name_list:
-				merger.append(open(filename, 'rb'))
-			dt = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-			with open(f'mergedPDF_{dt}.pdf' , 'wb') as fout:
+			for item in self.pdf_list:
+				merger.append(open(item['file'], 'rb'))
+			savename = QFileDialog.getSaveFileName(self, 'Save merged PDF', os.getcwd(), 'PDF files (*.pdf)')[0]
+			with open(savename , 'wb') as fout:
 				merger.write(fout)
-			self.errtext.insert(INSERT, 'Merge Complete!!!')
-	
-root =Tk()
-root.geometry('600x500')
-app = Window(root)
-root.mainloop()
+			self.statusMsg('Merge Complete!!!')
+
+
+
+if __name__ == '__main__':
+	import sys
+	app = QApplication(sys.argv)
+
+	wind = App()
+	wind.resize(600, 500)
+	wind.move(50,150)
+	wind.show()
+
+	sys.exit(app.exec_())
