@@ -10,10 +10,6 @@ class App(QMainWindow):
 	def __init__(self):
 		super().__init__()
 		self.title = 'PDFMerger'
-		self.left = 200
-		self.top = 70
-		self.width = 200
-		self.height = 100
 		self.setWindowTitle(self.title)
 		self.setGeometry(self.left, self.top, self.width, self.height)
 
