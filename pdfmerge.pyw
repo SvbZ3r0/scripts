@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QPalette, QColor
 from PyPDF2 import PdfFileMerger, PdfFileReader
 
 
@@ -19,11 +20,34 @@ class App(QMainWindow):
 		self.statusBar().showMessage('Opening application', 1000)
 
 
+class ConfirmSkipInvalidPdfDialog(QDialog):
+
+	def __init__(self, *args, **kwargs):
+		super(ConfirmSkipInvalidPdfDialog, self).__init__(*args, **kwargs)
+		
+		self.setWindowTitle('Invalid PDF')
+
+		self.text = QLabel('Unable to merge file')
+		self.filename = QLabel()
+		
+		QBtn = QDialogButtonBox.Ignore | QDialogButtonBox.Abort
+		
+		self.buttonBox = QDialogButtonBox(QBtn)
+		self.buttonBox.accepted.connect(self.accept)
+		self.buttonBox.rejected.connect(self.reject)
+
+		self.layout = QVBoxLayout()
+		self.layout.addWidget(self.text)
+		self.layout.addWidget(self.filename)
+		self.layout.addWidget(self.buttonBox)
+		self.setLayout(self.layout)
+
+
 class UIWindow(QWidget):
+
 	def __init__(self, parent=None):
 		super(QWidget, self).__init__(parent)
 		self.initUI()
-
 
 	def initUI(self):
 		self.pdf_list=[]
@@ -110,13 +134,17 @@ class UIWindow(QWidget):
 		self.scrlboxFileList.update()
 
 	def updateCheckedPdfList(self):
-		self.pdf_list = []
-		for item in self.pdf_file_UI:
-			self.pdf_list.append({'file':item.text(), 'checked':item.isChecked()})
+		for n, item in enumerate(self.pdf_file_UI):
+			self.pdf_list[n]['checked'] = item.isChecked()
 
 	@pyqtSlot()
 	def statusMsg(self, msg, t=2000):
 		self.parent().statusBar().showMessage(msg, t)
+
+	def get_skip_confirmation(self, file):
+		dlg = ConfirmSkipInvalidPdfDialog(self)
+		dlg.filename.setText(f'{file}')
+		return dlg.exec_()
 
 	def add_files(self):
 		pdf_file = QFileDialog.getOpenFileNames(self, 'Select PDFs', os.getcwd(), 'PDF files (*.pdf)')
@@ -182,8 +210,15 @@ class UIWindow(QWidget):
 			self.statusMsg('Merging files', 5000)
 			merger = PdfFileMerger()
 			for item in self.pdf_list:
-				merger.append(open(item['file'], 'rb'))
+				try:
+					merger.append(open(item['file'], 'rb'))
+				except OSError:
+					if self.get_skip_confirmation(item['file']):
+						pass
+					else:
+						return
 			savename = QFileDialog.getSaveFileName(self, 'Save merged PDF', os.getcwd(), 'PDF files (*.pdf)')[0]
+			if savename == '': return
 			with open(savename , 'wb') as fout:
 				merger.write(fout)
 			self.statusMsg('Merge Complete!!!')
@@ -193,6 +228,27 @@ class UIWindow(QWidget):
 if __name__ == '__main__':
 	import sys
 	app = QApplication(sys.argv)
+
+	# https://stackoverflow.com/questions/48256772/dark-theme-for-qt-widgets
+	# Force the style to be the same on all OSs:
+	app.setStyle("Fusion")
+
+	# Now use a palette to switch to dark colors:
+	palette = QPalette()
+	palette.setColor(QPalette.Window, QColor(53, 53, 53))
+	palette.setColor(QPalette.WindowText, Qt.white)
+	palette.setColor(QPalette.Base, QColor(25, 25, 25))
+	palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+	palette.setColor(QPalette.ToolTipBase, Qt.white)
+	palette.setColor(QPalette.ToolTipText, Qt.white)
+	palette.setColor(QPalette.Text, Qt.white)
+	palette.setColor(QPalette.Button, QColor(53, 53, 53))
+	palette.setColor(QPalette.ButtonText, Qt.white)
+	palette.setColor(QPalette.BrightText, Qt.red)
+	palette.setColor(QPalette.Link, QColor(42, 130, 218))
+	palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+	palette.setColor(QPalette.HighlightedText, Qt.black)
+	app.setPalette(palette)
 
 	wind = App()
 	wind.resize(600, 500)
