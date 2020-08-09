@@ -42,9 +42,11 @@ Format defaults to Indian.
 Launches GUI to merge multiple PDFs into a single document.
 
 ##### Requirements: 
+[`pyQt5`](https://pypi.org/project/PyQt5/)
 [`pyPDF2`](https://pypi.org/project/PyPDF2/)
 
 ```
+pip install PyQt5
 pip install PyPDF2
 ```
 
