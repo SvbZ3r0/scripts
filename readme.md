@@ -2,6 +2,20 @@
 
 These scripts were written for personal use. You are free to do with these as you wish.
 
+### cam.pyw
+
+To quickly check my face and background before a call.
+
+##### Requirements: 
+[`OpenCV`](https://pypi.org/project/opencv-python/)
+
+[`PyQt5`](https://pypi.org/project/PyQt5/)
+
+```
+pip install opencv-python
+pip install PyQt5
+```
+
 ### cputemp.bat
 
 Retrieves the temperature of the CPU. Windows only. May not work on all machines.
@@ -37,18 +51,18 @@ number_format.py [-i|-w] <num>
 
 Format defaults to Indian.
 
-### pdfmerge.py
+### pdfmerge.pyw
 
 Launches GUI to merge multiple PDFs into a single document.
 
 ##### Requirements: 
-[`pyQt5`](https://pypi.org/project/PyQt5/)
-
 [`pyPDF2`](https://pypi.org/project/PyPDF2/)
 
+[`pyQt5`](https://pypi.org/project/PyQt5/)
+
 ```
-pip install PyQt5
 pip install PyPDF2
+pip install PyQt5
 ```
 
 ### tasks.py
