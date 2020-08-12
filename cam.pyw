@@ -9,12 +9,11 @@ class VideoThread(QThread):
 
 	def __init__(self):
 		super().__init__()
-		self._run_flag = True
+		self.is_running = True
 
 	def run(self):
 		cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-		counter = 0
-		while self._run_flag:
+		while self.is_running:
 			ret, frame = cap.read()
 			if ret:
 				# https://stackoverflow.com/a/55468544/6622587
@@ -24,11 +23,12 @@ class VideoThread(QThread):
 				convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 				p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
 				self.changePixmap.emit(p)
+				# Added to reduce crashes when moving the window
 				QThread.msleep(125)
 		cap.release()
 
 	def stop(self):
-		self._run_flag = False
+		self.is_running = False
 		self.wait()
 
 
@@ -69,7 +69,6 @@ class UIWindow(QWidget):
 		vbox = QVBoxLayout(self.widgetDisp)
 		
 		self.labelVideo = QLabel(self)
-		# self.labelVideo.move(280, 120)
 		self.labelVideo.resize(640, 480)
 		vbox.addWidget(self.labelVideo)
 		self.setLayout(vbox)
@@ -90,10 +89,4 @@ if __name__ == '__main__':
 	wind.resize(640, 480)
 	wind.show()
 
-	sys._excepthook = sys.excepthook 
-	def exception_hook(*args, **kwargs):
-		print(*args, **kwargs)
-		sys._excepthook(*args, **kwargs) 
-		sys.exit(1)
-	sys.excepthook = exception_hook
 	sys.exit(app.exec_()) 
