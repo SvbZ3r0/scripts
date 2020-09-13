@@ -217,6 +217,9 @@ class UIWindow(QWidget):
 						pass
 					else:
 						return
+				except Exception as e:
+					self.statusMsg(str(e))
+					return
 			savename = QFileDialog.getSaveFileName(self, 'Save merged PDF', os.getcwd(), 'PDF files (*.pdf)')[0]
 			if savename == '': return
 			with open(savename , 'wb') as fout:
