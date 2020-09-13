@@ -36,7 +36,7 @@ class App(QMainWindow):
 
 	def __init__(self):
 		super().__init__()
-		self.title = 'PDFMerger'
+		self.title = 'Camera'
 		self.setWindowTitle(self.title)
 
 		self.table_widget = UIWindow(self)
