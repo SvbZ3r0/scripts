@@ -88,7 +88,7 @@ def create_cache():
 def get_rate_current(overwrite = False):
 	url = URL.format('latest.json')
 	with open(cache_file, 'r', encoding='utf-8') as cache:
-		rates = json.load(cache, encoding='utf-8')
+		rates = json.load(cache)
 	try:
 		r = requests.get(url)
 		r.raise_for_status()
@@ -119,7 +119,7 @@ def get_rate_current(overwrite = False):
 def get_rates_cache():
 	try:
 		with open(cache_file, 'r', encoding='utf-8') as cache:
-			rates = json.load(cache, encoding='utf-8')
+			rates = json.load(cache)
 	except FileNotFoundError:
 		return create_cache()
 	time_since_last_update = datetime.datetime.today() - datetime.datetime.strptime(rates['date'], '%a, %d %b %Y %H:%M:%S %Z')
