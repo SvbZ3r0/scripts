@@ -1,3 +1,7 @@
+# Original work © 2019 Davidnh8
+# https://github.com/Davidnh8/PDFmerge_windows
+# Modified work © 2020 $vBZ3r0
+
 import os
 from datetime import datetime
 from PyQt5.QtCore import *
