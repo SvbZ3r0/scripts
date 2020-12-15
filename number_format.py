@@ -2,32 +2,33 @@
 
 import sys
 
-def conv(number, fmt):
-	num = ''.join(number.split(','))
-
+def conv(number, fmt='n'):
+	number = str(number)
 	try:
-		if '.' in num:
-			num = float(num)
-		else:
-			num = int(num)
+		num, dec = number.split('.')
+	except ValueError:
+		num = number
+		dec = ''
+	num = ''.join(num.split(','))
+	try:
+		_ = str(int(num))
+		if dec != '':
+			_ = str(int(dec))
 	except ValueError:
 		print(f'Invalid number: {number}')
-		exit()
+		exit(1)
+
+	_num = f'{num}.{dec}'
+	if fmt == 'n':
+		return _num
 
 	if fmt == 'w':
-		num = f'{num:,}'
-	else:
-		if type(num) == float:	# isinstance(num, float)
-			num, dec = str(num).split('.')
-			dec = '.' + dec
-		else:
-			num = str(num)
-			dec = ''
+		num = f'{_num:,}'
+	elif fmt == 'i':
 		_num = num[::-1]
 		_num = [_num[:3]]+[_num[3:][i:i+2] for i in range(0, len(_num)-3, 2)]
 		_num = ','.join(_num)
-		num = _num[::-1] + dec
-
+		num = f'{_num[::-1]}.{dec}'
 	return num
 
 def parseargs():
