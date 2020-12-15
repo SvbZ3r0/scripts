@@ -15,7 +15,7 @@ def conv(number, fmt='n'):
 		if dec != '':
 			_ = str(int(dec))
 	except ValueError:
-		print(f'Invalid number: {number}')
+		print(f'Invalid number: {number}', file=sys.stderr)
 		exit(1)
 
 	_num = f'{num}.{dec}'
@@ -33,12 +33,12 @@ def conv(number, fmt='n'):
 
 def parseargs():
 	if len(sys.argv) == 1:
-		print('Missing arguments.')
+		print('Missing arguments.', file=sys.stderr)
 		exit()
 
 	if len(sys.argv) == 3:
 		if sys.argv[1] != '-i' and sys.argv[1] != '-w':
-			print(f'Invalid flag: {sys.argv[1]}')
+			print(f'Invalid flag: {sys.argv[1]}', file=sys.stderr)
 			exit()
 		fmt = sys.argv[1][-1]
 		number = sys.argv[2]

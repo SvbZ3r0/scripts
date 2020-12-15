@@ -15,7 +15,7 @@ except ImportError:
 		try:
 			return float(num)
 		except TypeError:
-			print("Please enter a valid number")
+			print("Please enter a valid number", file=sys.stderr)
 			exit(1)
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), 'data', 'curx.conf')) as f:
@@ -70,12 +70,12 @@ def create_cache():
 		with open(cache_file, 'w', encoding='utf-8') as cache:
 			json.dump(tmp, cache, indent=4)
 	except IOError:
-		print('Unable to cache results.\n')
+		print('Unable to cache results.\n', file=sys.stderr)
 		# exit(1)
 		pass
 	return tmp
 
-def get_rate_current(overwrite = False):
+def get_rates_current(overwrite = False):
 	url = URL.format('latest.json')
 	with open(cache_file, 'r', encoding='utf-8') as cache:
 		rates = json.load(cache)
@@ -83,12 +83,12 @@ def get_rate_current(overwrite = False):
 		r = requests.get(url)
 		r.raise_for_status()
 	except ConnectionError:
-		print('Unable to update exchange rates.')
+		print('Unable to update exchange rates.', file=sys.stderr)
 		return rates
 		exit(1)
 	except:
 		# TODO change this
-		print('Unable to update exchange rates.')
+		print('Unable to update exchange rates.', file=sys.stderr)
 		return rates
 		exit(1)
 	rates['date'] = r.headers['Last-Modified']
@@ -102,11 +102,11 @@ def get_rate_current(overwrite = False):
 		with open(cache_file, 'w', encoding='utf-8') as cache:
 			json.dump(rates, cache, indent=4)
 	except IOError:
-		print('Unable to cache results.\n')
+		print('Unable to cache results.\n', file=sys.stderr)
 		pass
 	return rates
 
-def get_rates_cache():
+def get_rates():
 	try:
 		with open(cache_file, 'r', encoding='utf-8') as cache:
 			rates = json.load(cache)
@@ -115,7 +115,7 @@ def get_rates_cache():
 	time_since_last_update = datetime.datetime.today() - datetime.datetime.strptime(rates['date'], '%a, %d %b %Y %H:%M:%S %Z')
 	if time_since_last_update > datetime.timedelta(days=1):
 		print('Updating rates')
-		return get_rate_current()
+		return get_rates_current()
 	return rates
 
 def convert(rates, from_curr, to_curr, val):
@@ -126,15 +126,15 @@ def convert(rates, from_curr, to_curr, val):
 		try:
 			rate = rates[to_curr]['rate']
 		except KeyError:
-			print(f'Unknown currency: {to_curr}')
+			print(f'Unknown currency: {to_curr}', file=sys.stderr)
 			exit(1)
 	elif from_curr not in rates:
-		print(f'Unknown currency: {from_curr}')
+		print(f'Unknown currency: {from_curr}', file=sys.stderr)
 		exit(1)
 	if to_curr == base:
 		rate = 1 / rates[from_curr]['rate']
 	elif to_curr not in rates:
-		print(f'Unknown currency: {to_curr}')
+		print(f'Unknown currency: {to_curr}', file=sys.stderr)
 		exit(1)
 	if not rate:
 		rate = rates[to_curr]['rate'] / rates[from_curr]['rate']
@@ -149,5 +149,5 @@ if __name__ == '__main__':
 	# create 'data' folder if it doesn't already exist
 	Path(os.path.dirname(cache_file)).mkdir(parents=True, exist_ok=True)
 	args = parse_args()
-	converted = convert(get_rates_cache(), *args)
+	converted = convert(get_rates(), *args)
 	print(converted)
