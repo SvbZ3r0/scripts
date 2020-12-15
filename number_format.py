@@ -18,12 +18,11 @@ def conv(number, fmt='n'):
 		print(f'Invalid number: {number}', file=sys.stderr)
 		exit(1)
 
-	_num = f'{num}.{dec}'
 	if fmt == 'n':
-		return _num
+		return f'{num}.{dec}'
 
 	if fmt == 'w':
-		num = f'{_num:,}'
+		num = f'{int(num):,}.{dec}'
 	elif fmt == 'i':
 		_num = num[::-1]
 		_num = [_num[:3]]+[_num[3:][i:i+2] for i in range(0, len(_num)-3, 2)]
