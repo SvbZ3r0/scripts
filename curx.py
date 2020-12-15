@@ -12,7 +12,11 @@ try:
 	from number_format import conv
 except ImportError:
 	def conv(num, fmt):
-		return num
+		try:
+			return float(num)
+		except TypeError:
+			print("Please enter a valid number")
+			exit(1)
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), 'data', 'curx.conf')) as f:
 	conf = json.load(f)
@@ -26,25 +30,12 @@ def curx_man():
 	exit(0)
 
 def parse_args():
-	if len(sys.argv) == 1: curx_man()
-	elif len(sys.argv) != 4:
-		if len(sys.argv) == 3: sys.argv += ['inr']
-		else:
-			print(f'Invalid command. \nUsage: {os.path.basename(sys.argv[0])} <value> <from> <to>')
-			exit(1)
-	try:
-		val = float(sys.argv[1])
-	except ValueError:
-		print(f'Invalid value: {sys.argv[1]}')
-	try:
-		from_curr = sys.argv[2].upper()
-	except AttributeError:
-		print(f'Invalid currency: {sys.argv[2]}')
-	try:
-		to_curr = sys.argv[3].upper()
-	except AttributeError:
-		print(f'Invalid currency: {sys.argv[3]}')
-	return from_curr, to_curr, val
+	parser = argparse.ArgumentParser()
+	parser.add_argument('value')
+	parser.add_argument('from_', metavar='from' )
+	parser.add_argument('to', nargs='?', default='inr')
+	args = parser.parse_args()
+	return args.from_.upper(), args.to.upper(), float(conv(args.value))
 
 def create_cache():
 	url = URL.format('currencies.json')
@@ -64,7 +55,6 @@ def create_cache():
 	tmp['rates'] = dict()
 	for k,v in currencies.items():
 		tmp['rates'][k] = {'name': v}
-		# tmp['rates'][k]['name'] = v
 	tmp['etag'] = r.headers['Etag']
 	url = URL.format('latest.json')
 	try:
@@ -130,24 +120,29 @@ def get_rates_cache():
 
 def convert(rates, from_curr, to_curr, val):
 	rate = 0
-	if from_curr == rates['base']:
-		rate = rates['rates'][to_curr]['rate']
-	elif from_curr not in rates['rates']:
+	base = rates['base']
+	rates = rates['rates']
+	if from_curr == base:
+		try:
+			rate = rates[to_curr]['rate']
+		except KeyError:
+			print(f'Unknown currency: {to_curr}')
+			exit(1)
+	elif from_curr not in rates:
 		print(f'Unknown currency: {from_curr}')
 		exit(1)
-	if to_curr == rates['base']:
-		rate = 1 / rates['rates'][from_curr]['rate']
-	elif to_curr not in rates['rates']:
+	if to_curr == base:
+		rate = 1 / rates[from_curr]['rate']
+	elif to_curr not in rates:
 		print(f'Unknown currency: {to_curr}')
 		exit(1)
 	if not rate:
-		rate = rates['rates'][to_curr]['rate'] / rates['rates'][from_curr]['rate']
-	conv_rate = val * rate
-	conv_rate = f'{conv_rate:.2f}'
+		rate = rates[to_curr]['rate'] / rates[from_curr]['rate']
+	conv_rate = f'{val * rate :.2f}'
 	fmt = 'i' if to_curr == 'INR' else 'w'
 	conv_rate = conv(conv_rate, fmt)
-	if 'symbol' in rates['rates'][to_curr].keys():
-		conv_rate = rates['rates'][to_curr]['symbol'] + ' ' + conv_rate
+	if 'symbol' in rates[to_curr].keys():
+		conv_rate = rates[to_curr]['symbol'] + ' ' + conv_rate
 	return conv_rate
 
 if __name__ == '__main__':
@@ -156,4 +151,3 @@ if __name__ == '__main__':
 	args = parse_args()
 	converted = convert(get_rates_cache(), *args)
 	print(converted)
-	# print(f'{converted:.2f}')
